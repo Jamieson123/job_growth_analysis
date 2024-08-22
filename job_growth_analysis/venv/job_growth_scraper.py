@@ -1,30 +1,43 @@
-import requests
+from selenium import webdriver
 from bs4 import BeautifulSoup
 import pandas as pd
 
-# Example URL (replace with the actual URL you're using)
-url = 'https://www.example-labor-statistics.com/employment-data'
+# Set up Selenium with the Chrome browser driver
+# Make sure to specify the correct path if ChromeDriver is not in your PATH
+driver = webdriver.Chrome()  # If ChromeDriver is in your PATH
+# driver = webdriver.Chrome(executable_path='path_to_chromedriver')  # If you need to specify the path
 
-response = requests.get(url)
-soup = BeautifulSoup(response.content, 'html.parser')
+# Open the BLS website
+driver.get('https://www.bls.gov/web/empsit/ceseesummary.htm')
 
-# Example: Extracting data from a table
-data = []
-table = soup.find('table', {'class': 'employment-data-table'})
-rows = table.find_all('tr')
+# Optional: Wait for the page to fully load
+driver.implicitly_wait(10)  # Wait up to 10 seconds for elements to load
 
-for row in rows[1:]:
-    cols = row.find_all('td')
-    date = cols[0].text.strip()
-    industry = cols[1].text.strip()
-    employment = cols[2].text.strip()
-    growth = cols[3].text.strip()
-    data.append([date, industry, employment, growth])
+# Extract the page source after JavaScript execution
+html = driver.page_source
 
-# Convert to DataFrame
-df = pd.DataFrame(data, columns=['Date', 'Industry', 'Employment', 'Growth'])
+# Parse the HTML with BeautifulSoup
+soup = BeautifulSoup(html, 'html.parser')
 
-# Save to CSV for future use
-df.to_csv('employment_data.csv', index=False)
+# Locate the table and scrape the data as before
+table = soup.find('table')
 
-print("Data successfully scraped and saved to 'employment_data.csv'.")
+if table:
+    data = []
+    rows = table.find_all('tr')
+    for row in rows:
+        cols = row.find_all(['td', 'th'])
+        cols = [col.text.strip() for col in cols]
+        data.append(cols)
+
+    # Convert the data to a DataFrame
+    df = pd.DataFrame(data)
+
+    # Save the DataFrame to a CSV file
+    df.to_csv('bls_employment_data.csv', index=False)
+    print("Data successfully saved to 'bls_employment_data.csv'")
+else:
+    print("No table found on the page")
+
+# Close the browser when done
+driver.quit()
