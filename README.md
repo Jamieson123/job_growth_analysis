@@ -30,9 +30,6 @@ Clone the Repository:
 bash
 
 Copy code
-git clone https://github.com/yourusername/your-repository-name.git
-Navigate to the Project Directory:
-
 
 bash
 
@@ -42,14 +39,12 @@ Install the Required Libraries:
 Make sure you have Python installed, then run:
 
 bash
-
 Copy code
 pip install -r requirements.txt
 Run the Analysis:
 Execute the main script to fetch the data and generate visualizations:
 
 bash
-
 Copy code
 python bls_trend_analysis.py
 View the Output:
